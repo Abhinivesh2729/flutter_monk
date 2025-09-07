@@ -11,17 +11,30 @@ class FlutterService {
       '/opt/homebrew/bin/flutter',
       '${Platform.environment['HOME']}/flutter/bin/flutter',
       '${Platform.environment['HOME']}/fvm/default/bin/flutter',
+      // Windows paths
+      '${Platform.environment['USERPROFILE']}\\flutter\\bin\\flutter.bat',
+      '${Platform.environment['LOCALAPPDATA']}\\flutter\\bin\\flutter.bat',
+      'C:\\flutter\\bin\\flutter.bat',
+      'C:\\tools\\flutter\\bin\\flutter.bat',
+      'flutter'
+          // Linux additional paths
+          '/snap/flutter/current/bin/flutter',
+      '/usr/bin/flutter',
+      '/home/${Platform.environment['USER']}/flutter/bin/flutter',
+      '/home/${Platform.environment['USER']}/snap/flutter/current/bin/flutter',
     ];
 
     // First try the PATH
     try {
-      final result = await Process.run('which', ['flutter']);
+      final command = Platform.isWindows ? 'where' : 'which';
+      final flutterName = Platform.isWindows ? 'flutter.bat' : 'flutter';
+      final result = await Process.run(command, [flutterName]);
       if (result.exitCode == 0) {
         final path = result.stdout.toString().trim();
         if (path.isNotEmpty) return path;
       }
     } catch (e) {
-      log("which command failed: $e");
+      log("command failed: $e");
     }
 
     // Then try common paths
